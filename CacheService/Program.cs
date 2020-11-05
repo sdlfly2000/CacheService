@@ -1,6 +1,8 @@
 using Common.Core.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Configuration;
 using System.Collections.Generic;
 
 namespace CacheService
@@ -23,6 +25,10 @@ namespace CacheService
                     {
                         "Infrastructure.cache.memory"
                     });
+                })
+                .ConfigureLogging((hostContext, logging) =>
+                {
+                    logging.AddConfiguration();
                 });
     }
 }
