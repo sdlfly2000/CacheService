@@ -23,6 +23,7 @@ namespace CacheService
                     services.AddMemoryCache();
                     DIModule.RegisterDomain(services, new List<string>
                     {
+                        "CacheService",
                         "Application.Cache.Service",
                         "Infrastructure.cache.memory"
                     });

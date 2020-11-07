@@ -1,27 +1,31 @@
 ﻿using Application.Cache.Service.Actions;
 using Application.Cache.Service.Contracts;
+using Common.Core.DependencyInjection;
 using System;
 using System.IO.Pipes;
 using System.Text;
 
 namespace CacheService.Processes
 {
-    public class ConnectionProcess
+    [ServiceLocate(typeof(IConnectionProcess))]
+    public class ConnectionProcess : IConnectionProcess
     {
-        private readonly NamedPipeServerStream _pipe;
+        private NamedPipeServerStream _pipe;
         private readonly IRequestDataParser _requestDataParser;
         private readonly IRequestExecuteAction _requestExecuteAction;
 
         public ConnectionProcess(
-            NamedPipeServerStream pipe, 
             IRequestDataParser requestDataParser,
             IRequestExecuteAction requstExecuteAction)
         {
-            _pipe = pipe;
             _requestDataParser = requestDataParser;
             _requestExecuteAction = requstExecuteAction;
         }
 
+        public void SetNamePipeServerStream(NamedPipeServerStream pipe)
+        {
+            _pipe = pipe;
+        }
 
         public void Process(IAsyncResult result)
         {
