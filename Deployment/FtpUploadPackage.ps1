@@ -28,6 +28,9 @@ $webclient.Dispose()
 
 # Establishing Ssh connection
 New-SSHSession -ComputerName $serverIP -Credential $cred -AcceptKey
+Write-Host ""
 
 # Execute Restart Systemd
-Invoke-SSHCommand -SessionId 0 -Command "echo 'sdl@1215' | sudo -S systemctl restart CacheServer.service"  
+Write-Host "Restart Service"
+Write-Host "echo $password | sudo -S systemctl restart CacheServer.service"
+Invoke-SSHCommand -SessionId 0 -Command "echo $password | sudo -S systemctl restart CacheServer.service"
