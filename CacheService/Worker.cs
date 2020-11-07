@@ -1,12 +1,8 @@
 using System;
 using System.IO.Pipes;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Cache.Service.Actions;
-using Application.Cache.Service.Contracts;
 using CacheService.Processes;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -53,7 +49,7 @@ namespace CacheService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("Waiting for connection...");
+            _logger.LogInformation("Waiting for connection...");
 
             if (_isRunning && _pipe != null && !_pipe.IsConnected)
             {
