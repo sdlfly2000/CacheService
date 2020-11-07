@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.9" />
 	<PackageReference Include="IdeaActivator.Common.Core" Version="1.0.6" />
+	<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.1.9" />
   </ItemGroup>
 
   <ItemGroup>

@@ -31,6 +31,7 @@ namespace CacheService
                 .ConfigureLogging((hostContext, logging) =>
                 {
                     logging.AddConfiguration();
-                });
+                })
+                .UseSystemd();
     }
 }
