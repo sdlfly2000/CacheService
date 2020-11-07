@@ -2,7 +2,6 @@ using System;
 using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
-using Infrastructure.cache.memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -16,14 +15,10 @@ namespace CacheService
 
         private NamedPipeServerStream _pipe;        
         private readonly ILogger<Worker> _logger;
-        private readonly IMemoryCaheService _memoryService;
 
-        public Worker(
-            ILogger<Worker> logger,
-            IMemoryCaheService memoryService)
+        public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            _memoryService = memoryService;
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)

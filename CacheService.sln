@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CacheService", "CacheService\CacheService.csproj", "{610BEF6D-F7F3-4881-8D9C-0F06D3890DA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CacheService", "CacheService\CacheService.csproj", "{610BEF6D-F7F3-4881-8D9C-0F06D3890DA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.cache.memory", "Infrastructure.cache.memory\Infrastructure.cache.memory.csproj", "{018F64E5-A8C5-4991-B402-F25018B2BEB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.cache.memory", "Infrastructure.cache.memory\Infrastructure.cache.memory.csproj", "{018F64E5-A8C5-4991-B402-F25018B2BEB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Cache.Service", "Application.Cache.Service\Application.Cache.Service.csproj", "{B005AB17-D0D0-4A9B-B7AD-501FDAFC21F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{018F64E5-A8C5-4991-B402-F25018B2BEB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{018F64E5-A8C5-4991-B402-F25018B2BEB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{018F64E5-A8C5-4991-B402-F25018B2BEB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B005AB17-D0D0-4A9B-B7AD-501FDAFC21F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B005AB17-D0D0-4A9B-B7AD-501FDAFC21F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B005AB17-D0D0-4A9B-B7AD-501FDAFC21F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B005AB17-D0D0-4A9B-B7AD-501FDAFC21F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
