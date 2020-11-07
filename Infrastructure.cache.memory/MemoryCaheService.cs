@@ -1,5 +1,5 @@
-﻿using Common.Core.DependencyInjection;
-using System;
+﻿using Common.Core.Cache;
+using Common.Core.DependencyInjection;
 using System.Collections.Generic;
 
 namespace Infrastructure.cache.memory
@@ -7,24 +7,33 @@ namespace Infrastructure.cache.memory
     [ServiceLocate(typeof(IMemoryCaheService))]
     public class MemoryCaheService : IMemoryCaheService
     {
-        public MemoryCaheService()
-        {
+        private readonly ICacheService _cacheService;
 
+        public MemoryCaheService(ICacheService cacheService)
+        {
+            _cacheService = cacheService;
         }
 
-        public T Get<T>(string key) where T : class
+        public string Get(string key)
         {
-            throw new NotImplementedException();
+            var value = _cacheService.Get(key);
+            return (string)value;
         }
 
         public IList<string> GetAllKeys()
         {
-            throw new NotImplementedException();
+            return _cacheService.LoadAllKeys();
         }
 
-        public T Set<T>(string key, T value) where T : class
+        public string Remove(string key)
         {
-            throw new NotImplementedException();
+            _cacheService.Remove(key);
+            return string.Empty;
+        }
+
+        public string Set(string key, string value)
+        {
+            return _cacheService.Set(key, value);
         }
     }
 }

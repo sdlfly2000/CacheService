@@ -19,7 +19,6 @@ namespace Application.Cache.Service.Actions
         // 5) Length of Value:          int
         // 6) Value:                    string
 
-        private int _totalLength;
         private int _CommandCode;
         private int _keyLength;
         private string _key;
@@ -28,12 +27,24 @@ namespace Application.Cache.Service.Actions
 
         public RequestModel Parse(byte[] rev)
         {
-            _totalLength = BitConverter.ToInt16(rev.AsSpan().Slice(0, 2));
-            _CommandCode = BitConverter.ToInt16(rev.AsSpan().Slice(2, 2));
-            _keyLength = BitConverter.ToInt16(rev.AsSpan().Slice(4, 2));
-            _key = Encoding.ASCII.GetString(rev, 6, _keyLength);
-            _valueLength = BitConverter.ToInt16(rev.AsSpan().Slice(6+_keyLength, 2));
-            _value = Encoding.ASCII.GetString(rev, 6 + _keyLength + 2, _valueLength);
+            _CommandCode = BitConverter.ToInt16(rev.AsSpan().Slice(0, 2));
+            _keyLength = BitConverter.ToInt16(rev.AsSpan().Slice(2, 2));
+            _key = Encoding.ASCII.GetString(rev, 4, _keyLength);
+
+            if ((CommandType)_CommandCode == CommandType.Set)
+            {
+                _valueLength = BitConverter.ToInt16(rev.AsSpan().Slice(4 + _keyLength, 2));
+                _value = Encoding.ASCII.GetString(rev, 4 + _keyLength + 2, _valueLength);
+            }
+            else if((CommandType)_CommandCode == CommandType.Get)
+            {
+                _value = string.Empty;
+            }
+            else
+            {
+                _key = string.Empty;
+                _value = string.Empty;
+            }
 
             return new RequestModel
             {

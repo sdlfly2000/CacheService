@@ -1,7 +1,10 @@
 using System;
 using System.IO.Pipes;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Cache.Service.Actions;
+using Application.Cache.Service.Contracts;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -11,14 +14,20 @@ namespace CacheService
     {
         private const string PipeName = "CacheService";
         private bool _isRunning = false;
-        private byte[] _buffer = new byte[20];
-
-        private NamedPipeServerStream _pipe;        
+        private NamedPipeServerStream _pipe;  
+        
         private readonly ILogger<Worker> _logger;
+        private readonly IRequestDataParser _requestDataParser;
+        private readonly IRequestExecuteAction _requestExecuteAction;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(
+            ILogger<Worker> logger,
+            IRequestDataParser requestDataParser,
+            IRequestExecuteAction requstExecuteAction)
         {
             _logger = logger;
+            _requestDataParser = requestDataParser;
+            _requestExecuteAction = requstExecuteAction;
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -55,10 +64,38 @@ namespace CacheService
         private void ProcessConnection(IAsyncResult result)
         {
             _pipe.WaitForPipeDrain();
-            var numRead = _pipe.Read(_buffer, 0, 20);
-            if (numRead > 0)
+
+            var lenBuffer = new byte[2];
+            _pipe.Read(lenBuffer, 0, 2);
+
+            var lenBufferInInt = BitConverter.ToInt16(lenBuffer) - 2;
+            var buffer = new byte[lenBufferInInt];
+            _pipe.Read(buffer, 0, lenBufferInInt);
+
+            var parser = _requestDataParser.Parse(buffer);
+
+            switch (parser.CommandCode)
             {
-                Console.WriteLine(System.Text.Encoding.Default.GetString(_buffer));
+                case CommandType.Get:
+                    var response = _requestExecuteAction.Get(parser.Key);
+                    _pipe.Write(Encoding.UTF8.GetBytes(response));
+                    break;
+
+                case CommandType.Set:
+                    _requestExecuteAction.Set(parser.Key, parser.Value);
+                    break;
+
+                case CommandType.GetAllKeys:
+                    var allKeys = _requestExecuteAction.GetAllKeys();
+                    _pipe.Write(
+                        Encoding.UTF8.GetBytes(
+                            System.Text.Json.JsonSerializer.Serialize(allKeys)));
+                    break;
+
+                case CommandType.Remove:
+                    _requestExecuteAction.Remove(parser.Key);
+                    break;              
+
             }
 
             _pipe.Disconnect();

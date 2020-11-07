@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Infrastructure.cache.memory
+namespace Application.Cache.Service.Actions
 {
-    public interface IMemoryCaheService
+    public interface IRequestExecuteAction
     {
         string Get(string key);
 

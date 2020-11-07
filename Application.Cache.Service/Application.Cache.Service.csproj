@@ -8,4 +8,8 @@
     <PackageReference Include="IdeaActivator.Common.Core" Version="1.0.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure.cache.memory\Infrastructure.cache.memory.csproj" />
+  </ItemGroup>
+
 </Project>
