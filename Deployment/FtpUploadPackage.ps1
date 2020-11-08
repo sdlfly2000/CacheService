@@ -4,11 +4,12 @@ param(
 	[string]$username = "sdlfly2000",
 	[string]$password = "sdl@1215",
 	[string]$url = "ftp://192.168.31.250/Projects/CacheServer",
-	[string]$serverIP = "192.168.31.250"
+	[string]$serverIP = "192.168.31.250",
+	[string]$root="root"
 )
 
 # Requre Module
-Install-Module Posh-SSH
+Import-Module Posh-SSH
 
 # Setup Credentail for Ssh
 $secure = $password | ConvertTo-SecureString -AsPlainText -Force 
@@ -32,5 +33,13 @@ Write-Host ""
 
 # Execute Restart Systemd
 Write-Host "Restart Service"
-Write-Host "echo $password | sudo -S systemctl restart CacheServer.service"
-Invoke-SSHCommand -SessionId 0 -Command "echo $password | sudo -S systemctl restart CacheServer.service"
+Write-Host "echo '$password' | sudo -S systemctl restart CacheServer.service"
+Try 
+{
+	Invoke-SSHCommand -SessionId 0 -Command "echo '$password' | sudo -S systemctl restart CacheServer.service"
+}
+Catch
+{
+	Write-Host "echo $password | sudo -S systemctl restart CacheServer.service"
+	exit 0
+}
