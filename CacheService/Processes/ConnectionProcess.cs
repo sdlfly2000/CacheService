@@ -1,5 +1,5 @@
-﻿using Application.Cache.Service.Actions;
-using Application.Cache.Service.Contracts;
+﻿using Application.Cache.Service;
+using Common.Core.Cache.Client.Contracts;
 using Common.Core.DependencyInjection;
 using System;
 using System.IO.Pipes;
@@ -11,15 +11,11 @@ namespace CacheService.Processes
     public class ConnectionProcess : IConnectionProcess
     {
         private NamedPipeServerStream _pipe;
-        private readonly IRequestDataParser _requestDataParser;
-        private readonly IRequestExecuteAction _requestExecuteAction;
+        private readonly ISharedCacheService _service;
 
-        public ConnectionProcess(
-            IRequestDataParser requestDataParser,
-            IRequestExecuteAction requstExecuteAction)
+        public ConnectionProcess(ISharedCacheService service)
         {
-            _requestDataParser = requestDataParser;
-            _requestExecuteAction = requstExecuteAction;
+            _service = service;
         }
 
         public void SetNamePipeServerStream(NamedPipeServerStream pipe)
@@ -38,28 +34,28 @@ namespace CacheService.Processes
             var buffer = new byte[lenBufferInInt];
             _pipe.Read(buffer, 0, lenBufferInInt);
 
-            var parser = _requestDataParser.Parse(buffer);
+            var parser = _service.Parse(buffer);
 
             switch (parser.CommandCode)
             {
                 case CommandType.Get:
-                    var response = _requestExecuteAction.Get(parser.Key);
+                    var response = _service.Get(parser.Key);
                     _pipe.Write(Encoding.UTF8.GetBytes(response));
                     break;
 
                 case CommandType.Set:
-                    _requestExecuteAction.Set(parser.Key, parser.Value);
+                    _service.Set(parser.Key, parser.Value);
                     break;
 
                 case CommandType.GetAllKeys:
-                    var allKeys = _requestExecuteAction.GetAllKeys();
+                    var allKeys = _service.GetAllKeys();
                     _pipe.Write(
                         Encoding.UTF8.GetBytes(
                             System.Text.Json.JsonSerializer.Serialize(allKeys)));
                     break;
 
                 case CommandType.Remove:
-                    _requestExecuteAction.Remove(parser.Key);
+                    _service.Remove(parser.Key);
                     break;
 
             }

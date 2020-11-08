@@ -1,4 +1,6 @@
-﻿namespace Application.Cache.Service.Contracts
+﻿using Common.Core.Cache.Client.Contracts;
+
+namespace Application.Cache.Service.Contracts
 {
     public class RequestModel
     {

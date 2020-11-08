@@ -1,7 +1,8 @@
 ﻿using Application.Cache.Service.Contracts;
+using Common.Core.Cache.Client.Contracts;
+using Common.Core.Cache.Client.Utils;
 using Common.Core.DependencyInjection;
 using System;
-using System.Text;
 
 namespace Application.Cache.Service.Actions
 {
@@ -27,16 +28,27 @@ namespace Application.Cache.Service.Actions
 
         public RequestModel Parse(byte[] rev)
         {
-            _CommandCode = BitConverter.ToInt16(rev.AsSpan().Slice(0, 2));
-            _keyLength = BitConverter.ToInt16(rev.AsSpan().Slice(2, 2));
-            _key = Encoding.ASCII.GetString(rev, 4, _keyLength);
+            var revSpan = rev.AsSpan();
+
+            var bytesCommandCode = revSpan.Slice(0, 2).ToArray();
+            _CommandCode = ConvertTools.BytesToInt16(bytesCommandCode);
+
+            var bytesKeyLength = revSpan.Slice(2, 2).ToArray();            
+            _keyLength = ConvertTools.BytesToInt16(bytesKeyLength);
+
+            var bytesKey = revSpan.Slice(4, _keyLength).ToArray();
+            _key = ConvertTools.BytesToString(bytesKey);
 
             if ((CommandType)_CommandCode == CommandType.Set)
             {
-                _valueLength = BitConverter.ToInt16(rev.AsSpan().Slice(4 + _keyLength, 2));
-                _value = Encoding.ASCII.GetString(rev, 4 + _keyLength + 2, _valueLength);
+                var bytesValueLength = revSpan.Slice(4 + _keyLength, 2).ToArray();
+                _valueLength = ConvertTools.BytesToInt16(bytesValueLength);
+
+                var bytesValue = revSpan.Slice(4 + _keyLength + 2, _valueLength).ToArray();
+                _value = ConvertTools.BytesToString(bytesValue);
             }
-            else if((CommandType)_CommandCode == CommandType.Get)
+            else if((CommandType)_CommandCode == CommandType.Get 
+                    || (CommandType)_CommandCode == CommandType.Remove)
             {
                 _value = string.Empty;
             }

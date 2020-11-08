@@ -1,27 +1,47 @@
 ﻿using Application.Cache.Service.Actions;
 using Application.Cache.Service.Contracts;
 using Common.Core.DependencyInjection;
-using System;
+using System.Collections.Generic;
 
 namespace Application.Cache.Service
 {
     [ServiceLocate(typeof(ISharedCacheService))]
     public class SharedCacheService : ISharedCacheService
     {
-        private RequestModel _requestModel;
-        private readonly IRequestDataParser _revParser;
+        private readonly IRequestDataParser _requestDataParser;
+        private readonly IRequestExecuteAction _requestExecuteAction;
 
-        public byte[] Object { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public SharedCacheService(IRequestDataParser revParser)
+        public SharedCacheService(
+            IRequestDataParser requestDataParser,
+            IRequestExecuteAction requestExecuteAction)
         {
-            _revParser = revParser;
+            _requestDataParser = requestDataParser;
+            _requestExecuteAction = requestExecuteAction;
         }
 
-        public CommandType Parse(byte[] revData)
+        public RequestModel Parse(byte[] value)
         {
-            _requestModel = _revParser.Parse(revData);
-            return _requestModel.CommandCode;
+            return _requestDataParser.Parse(value);
+        }
+
+        public string Get(string key)
+        {
+            return _requestExecuteAction.Get(key);
+        }
+
+        public string Set(string key, string value)
+        {
+            return _requestExecuteAction.Set(key, value);
+        }
+
+        public string Remove(string key)
+        {
+            return _requestExecuteAction.Remove(key);
+        }
+
+        public IList<string> GetAllKeys()
+        {
+            return _requestExecuteAction.GetAllKeys();
         }
     }
 }
