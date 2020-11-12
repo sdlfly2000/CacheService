@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -14,8 +14,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Application.Cache.Service\Application.Cache.Service.csproj" />
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="powershell.exe ..\Deployment\FtpUploadPackage.ps1" />
-  </Target>
 </Project>

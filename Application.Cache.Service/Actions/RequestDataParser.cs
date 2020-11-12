@@ -33,14 +33,14 @@ namespace Application.Cache.Service.Actions
             var bytesCommandCode = revSpan.Slice(0, 2).ToArray();
             _CommandCode = ConvertTools.BytesToInt16(bytesCommandCode);
 
-            var bytesKeyLength = revSpan.Slice(2, 2).ToArray();            
-            _keyLength = ConvertTools.BytesToInt16(bytesKeyLength);
-
-            var bytesKey = revSpan.Slice(4, _keyLength).ToArray();
-            _key = ConvertTools.BytesToString(bytesKey);
-
             if ((CommandType)_CommandCode == CommandType.Set)
             {
+                var bytesKeyLength = revSpan.Slice(2, 2).ToArray();
+                _keyLength = ConvertTools.BytesToInt16(bytesKeyLength);
+
+                var bytesKey = revSpan.Slice(4, _keyLength).ToArray();
+                _key = ConvertTools.BytesToString(bytesKey);
+
                 var bytesValueLength = revSpan.Slice(4 + _keyLength, 2).ToArray();
                 _valueLength = ConvertTools.BytesToInt16(bytesValueLength);
 
@@ -50,6 +50,12 @@ namespace Application.Cache.Service.Actions
             else if((CommandType)_CommandCode == CommandType.Get 
                     || (CommandType)_CommandCode == CommandType.Remove)
             {
+                var bytesKeyLength = revSpan.Slice(2, 2).ToArray();
+                _keyLength = ConvertTools.BytesToInt16(bytesKeyLength);
+
+                var bytesKey = revSpan.Slice(4, _keyLength).ToArray();
+                _key = ConvertTools.BytesToString(bytesKey);
+
                 _value = string.Empty;
             }
             else
