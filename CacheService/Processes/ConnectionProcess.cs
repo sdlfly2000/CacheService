@@ -1,6 +1,7 @@
 ﻿using Application.Cache.Service;
 using Application.Cache.Service.Contracts;
 using Common.Core.Cache.Client.Contracts;
+using Common.Core.Cache.Client.Utils;
 using Common.Core.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -31,7 +32,7 @@ namespace CacheService.Processes
 
         public void Process(IAsyncResult result)
         {
-            _logger.LogInformation("Connect.");
+            _logger.LogInformation("Connected...");
 
             var lenBuffer = new byte[2];
             _pipe.Read(lenBuffer, 0, 2);
@@ -48,7 +49,8 @@ namespace CacheService.Processes
             {
                 case CommandType.Get:
                     var response = _service.Get(parser.Key);
-                    _pipe.Write(Encoding.UTF8.GetBytes(response));
+                    _pipe.Write(ConvertTools.StringToBytes(response));
+                    _logger.LogInformation("Response - | " + response);
                     break;
 
                 case CommandType.Set:
@@ -57,9 +59,9 @@ namespace CacheService.Processes
 
                 case CommandType.GetAllKeys:
                     var allKeys = _service.GetAllKeys();
-                    _pipe.Write(
-                        Encoding.UTF8.GetBytes(
-                            System.Text.Json.JsonSerializer.Serialize(allKeys)));
+                    var allKeysSerialized = System.Text.Json.JsonSerializer.Serialize(allKeys);
+                    _pipe.Write(ConvertTools.StringToBytes(allKeysSerialized));
+                    _logger.LogInformation("Response - | " + allKeysSerialized);
                     break;
 
                 case CommandType.Remove:
@@ -82,9 +84,10 @@ namespace CacheService.Processes
         private string GetFormattedRevData(RequestModel model)
         {
             var formatted = Environment.NewLine;
-            formatted += @"Command: " + model.CommandCode + Environment.NewLine;
-            formatted += @"Key: " + model.Key + Environment.NewLine;
-            formatted += @"Value: " + model.Value + Environment.NewLine;
+            formatted += @"| Request - " + Environment.NewLine;
+            formatted += @"| Command: " + model.CommandCode + Environment.NewLine;
+            formatted += @"| Key: " + model.Key + Environment.NewLine;
+            formatted += @"| Value: " + model.Value + Environment.NewLine;
 
             return formatted;
         }
