@@ -1,6 +1,8 @@
 ﻿using Application.Cache.Service;
+using Application.Cache.Service.Contracts;
 using Common.Core.Cache.Client.Contracts;
 using Common.Core.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO.Pipes;
 using System.Text;
@@ -12,10 +14,14 @@ namespace CacheService.Processes
     {
         private NamedPipeServerStream _pipe;
         private readonly ISharedCacheService _service;
+        private readonly ILogger<Worker> _logger;
 
-        public ConnectionProcess(ISharedCacheService service)
+        public ConnectionProcess(
+            ISharedCacheService service,
+            ILogger<Worker> logger)
         {
             _service = service;
+            _logger = logger;
         }
 
         public void SetNamePipeServerStream(NamedPipeServerStream pipe)
@@ -25,7 +31,7 @@ namespace CacheService.Processes
 
         public void Process(IAsyncResult result)
         {
-            _pipe.WaitForPipeDrain();
+            _logger.LogInformation("Connect.");
 
             var lenBuffer = new byte[2];
             _pipe.Read(lenBuffer, 0, 2);
@@ -35,6 +41,8 @@ namespace CacheService.Processes
             _pipe.Read(buffer, 0, lenBufferInInt);
 
             var parser = _service.Parse(buffer);
+
+            _logger.LogInformation(GetFormattedRevData(parser));
 
             switch (parser.CommandCode)
             {
@@ -62,9 +70,25 @@ namespace CacheService.Processes
 
             _pipe.Disconnect();
 
+            _logger.LogInformation("Disconnect.");
+
             _pipe.EndWaitForConnection(result);
 
             var asyncResult = _pipe.BeginWaitForConnection(new AsyncCallback(Process), null);
         }
+
+        #region Private Methods
+
+        private string GetFormattedRevData(RequestModel model)
+        {
+            var formatted = Environment.NewLine;
+            formatted += @"Command: " + model.CommandCode + Environment.NewLine;
+            formatted += @"Key: " + model.Key + Environment.NewLine;
+            formatted += @"Value: " + model.Value + Environment.NewLine;
+
+            return formatted;
+        }
+
+        #endregion
     }
 }
