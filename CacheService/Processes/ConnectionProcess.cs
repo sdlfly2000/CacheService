@@ -34,49 +34,58 @@ namespace CacheService.Processes
         {
             _logger.LogInformation("Connected...");
 
-            var lenBuffer = new byte[2];
-            _pipe.Read(lenBuffer, 0, 2);
-
-            var lenBufferInInt = BitConverter.ToInt16(lenBuffer) - 2;
-            var buffer = new byte[lenBufferInInt];
-            _pipe.Read(buffer, 0, lenBufferInInt);
-
-            var parser = _service.Parse(buffer);
-
-            _logger.LogInformation(GetFormattedRevData(parser));
-
-            switch (parser.CommandCode)
+            try
             {
-                case CommandType.Get:
-                    var response = _service.Get(parser.Key);
-                    _pipe.Write(ConvertTools.StringToBytes(response));
-                    _logger.LogInformation("Response - | " + response);
-                    break;
+                var lenBuffer = new byte[2];
+                _pipe.Read(lenBuffer, 0, 2);
 
-                case CommandType.Set:
-                    _service.Set(parser.Key, parser.Value);
-                    break;
+                var lenBufferInInt = BitConverter.ToInt16(lenBuffer) - 2;
+                var buffer = new byte[lenBufferInInt];
+                _pipe.Read(buffer, 0, lenBufferInInt);
 
-                case CommandType.GetAllKeys:
-                    var allKeys = _service.GetAllKeys();
-                    var allKeysSerialized = System.Text.Json.JsonSerializer.Serialize(allKeys);
-                    _pipe.Write(ConvertTools.StringToBytes(allKeysSerialized));
-                    _logger.LogInformation("Response - | " + allKeysSerialized);
-                    break;
+                var parser = _service.Parse(buffer);
 
-                case CommandType.Remove:
-                    _service.Remove(parser.Key);
-                    break;
+                _logger.LogInformation(GetFormattedRevData(parser));
 
+                switch (parser.CommandCode)
+                {
+                    case CommandType.Get:
+                        var response = _service.Get(parser.Key) ?? string.Empty;                         
+                        _pipe.Write(ConvertTools.StringToBytes(response));                        
+                        _logger.LogInformation("Response - | " + response);
+                        break;
+
+                    case CommandType.Set:
+                        _service.Set(parser.Key, parser.Value);
+                        break;
+
+                    case CommandType.GetAllKeys:
+                        var allKeys = _service.GetAllKeys();
+                        var allKeysSerialized = System.Text.Json.JsonSerializer.Serialize(allKeys);
+                        _pipe.Write(ConvertTools.StringToBytes(allKeysSerialized));
+                        _logger.LogInformation("Response - | " + allKeysSerialized);
+                        break;
+
+                    case CommandType.Remove:
+                        _service.Remove(parser.Key);
+                        break;
+
+                }
+
+                _pipe.Disconnect();
+
+                _logger.LogInformation("Disconnect.");
+
+                _pipe.EndWaitForConnection(result);
+
+            }catch(Exception e)
+            {
+                _logger.LogInformation(e.Message);
             }
-
-            _pipe.Disconnect();
-
-            _logger.LogInformation("Disconnect.");
-
-            _pipe.EndWaitForConnection(result);
-
-            var asyncResult = _pipe.BeginWaitForConnection(new AsyncCallback(Process), null);
+            finally
+            {
+                var asyncResult = _pipe.BeginWaitForConnection(new AsyncCallback(Process), null);
+            }            
         }
 
         #region Private Methods
